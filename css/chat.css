@@ -1,0 +1,62 @@
+/* Shortcut classes */
+.fl{float:left;}
+.fr{float:right;}
+.cb{clear:both;}
+.cl{clear:left;}
+.cr{clear:right;}
+.db{display:block;}
+.di{display:inline;}
+.ib{display:inline-block;}
+.dn{display:none;}
+.po{cursor:pointer;}
+.tc{text-align:center;}
+.tr{text-align:right;}
+.tl{text-align:left;}
+.np{padding:0;}
+.nm{margin:0;}
+.ab{position:absolute;}
+.rl{position:relative;}
+.fx{position:fixed;}
+.oh{overflow:hidden;}
+.oa{overflow:auto;}
+.oy{overflow-y:scroll}
+.b,strong{font-weight:700;}
+.i,em{font-style:italic;}
+.m{margin:10px}
+.mb{margin-bottom:10px;}
+.mt{margin-top:10px;}
+.ml{margin-left:10px;}
+.mr{margin-right:10px;}
+.ma{margin:0 auto;}
+.p{padding:10px;}
+.pb{padding-bottom:10px;}
+.pt{padding-top:10px;}
+.pl{padding-left:10px;}
+.pr{padding-right:10px;}
+.md{vertical-align:middle}
+.nw{white-space:nowrap;}
+.zt{z-index:100}
+.zb{z-index:-100}
+.tp{top:0}
+.lf{left:0}
+.rg{right:0}
+.bm{bottom:0}
+.min{width:1%;}
+.max{width:100%;}
+
+/* Portfolio CSS */
+
+body {
+	background: #ededed;
+}
+
+#chat {
+	height: 300px;
+	border: 1px solid #c6c6c6;
+	border-radius: 2px;
+	overflow: scroll;
+	overflow-x: hidden;
+	background: #fff;
+	margin-bottom: 10px;
+	padding: 10px;
+}
