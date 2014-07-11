@@ -62,7 +62,9 @@
 			$(document).ready(function () {
 				// establish new connection
 				$("#name").val($.cookie('name'));
-				$("#colour").val($.cookie('colour'));
+				if($.cookie('colour')) {
+					$("#colour").val($.cookie('colour'));
+				}
 				$("#chat").html('<div class="fw-500" style="color: grey">Connecting...</div>');
 				new_socket();
 
