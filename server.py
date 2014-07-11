@@ -34,6 +34,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 		if "name" not in ws_data:
 			self.write_message('<div class="fw-500" style="color: red">Error: Name field not filled out</div>')
 			return
+		if len(ws_data["name"]) > 25:
+			self.write_message('<div class="fw-500" style="color: red">Error: Name is too long</div>')
+			return
 		# IP Address Validation
 		c.execute("select * from chat where name = ? and ip != ? and date > ?",
 			[ws_data["name"], self.request.remote_ip, str(int(time.time() - 604800))]).rowcount
@@ -49,11 +52,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 		# Send Message
 		message = cgi.escape(ws_data["message"])
 		c.execute("insert into chat (date, name, message, colour, ip) values (?, ?, ?, ?, ?)",
-					[str(int(time.time())), ws_data["name"], message, ws_data["colour"], self.request.remote_ip])
+					[str(int(time.time())), cgi.escape(ws_data["name"]), cgi.escape(ws_data["message"]), ws_data["colour"], self.request.remote_ip])
 		db.commit()
 		c.close()
 		for socket in sockets:
-			socket.write_message(render_message(datetime.now(), ws_data["colour"], ws_data["name"], message))
+			socket.write_message(render_message(datetime.now(), ws_data["colour"], cgi.escape(ws_data["name"]), cgi.escape(ws_data["message"])))
 
 	def on_close(self):
 		sockets.remove(self)
