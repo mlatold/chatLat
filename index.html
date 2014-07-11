@@ -8,9 +8,9 @@
 		<meta name="MobileOptimized" content="320">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-		<link rel="stylesheet" type="text/css" href="css/ink.min.css">
-		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
-		<link rel="stylesheet" type="text/css" href="css/chat.css">
+		<link rel="stylesheet" href="//cdn.ink.sapo.pt/3.0.4/css/ink.css">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/chat.css">
 	</head>
 
 	<body>
@@ -45,39 +45,74 @@
 				<div class="control-group">
 					<label for="message">Message:</label>
 					<div class="control">
-						<input type="text" id="message" name="message" />
+						<input type="text" id="message" name="message" autocomplete="off" />
 					</div>
 				</div>
-				<input type="submit" name="submit" id="submit" class="ink-button blue fr large" value="Submit">
+				<input type="submit" name="submit" id="submit" class="ink-button blue fr large" disabled="disabled" value="Submit">
 			</form>
 		</div>
 
-		<script type="text/javascript" src="js/jquery.js"></script>
-		<script type="text/javascript" src="js/ink-all.min.js"></script>
+		<script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+		<script type="text/javascript" src="//cdn.ink.sapo.pt/3.0.4/js/ink-all.js"></script>
 		<script>
+			var ws;
+			var was_connected = false;
+
 			$(document).ready(function () {
-				var ws = new WebSocket("ws://" + window.location.hostname + ":" + 8888 + "/ws");
+				// establish new connection
+				$("#name").val($.cookie('name'));
+				$("#colour").val($.cookie('colour'));
 				$("#chat").html('<div class="fw-500" style="color: grey">Connecting...</div>');
-				ws.onmessage = function(e) {
-					append_message(e.data);
-				};
-				ws.onclose = function(e) {
-					append_message('<div class="fw-500" style="color: red">Connection Lost.</div>');
-				};
-				ws.onopen = function(e) {
-					append_message('<div class="fw-500" style="color: green">Connection Established! Welcome to Mikechat!</div>');
-				};
+				new_socket();
 
+				// preselect input box
+				if($("#name").val() != "") {
+					$("#message").focus();
+				}
+				else {
+					$("#name").focus();
+				}
 
+				// form submit handler
 				$("#form").submit(function(e) {
+					$.cookie('name', $("#name").val(), { expires: 365 });
+					$.cookie('colour', $("#colour").val(), { expires: 365 });
 					ws.send($("#form").serialize());
 					$("#message").val("").focus();
 					return false;
 				});
 			});
 
-			function append_message(message) {
+			function new_socket() {
+				ws = new WebSocket("ws://" + window.location.hostname + ":" + 8888 + "/ws");
+				// received message from server
+				ws.onmessage = function(e) {
+					append_message(e.data);
+				};
+				// connection lost
+				ws.onclose = function(e) {
+					$("#submit").prop("disabled", true);
+					setTimeout(new_socket, 500);
 
+					// change message if constantly reconnecting
+					if(was_connected) {
+						was_connected = false;
+						append_message('<div class="fw-500" style="color: red">Connection Lost! Attempting to reconnect...</div>');
+					}
+					else {
+						append_message('<div class="fw-500" style="color: red">Could not connect. Trying again...</div>');
+					}
+				};
+				// successful connection
+				ws.onopen = function(e) {
+					was_connected = true;
+					$("#submit").prop("disabled", false);
+					append_message('<div class="fw-500" style="color: green">Connection Established! Welcome to Mikechat!</div>');
+				};
+			}
+
+			function append_message(message) {
 				// this scroll function checks if the user is already scrolled to the bottom, thus they keep seeing new messages
 				var scroll = false;
 				if($("#chat")[0].scrollHeight - $("#chat").outerHeight() <= $("#chat")[0].scrollTop) {
