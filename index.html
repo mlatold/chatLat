@@ -45,7 +45,7 @@
 				<div class="control-group">
 					<label for="message">Message:</label>
 					<div class="control">
-						<textarea name="message" id="message"></textarea>
+						<input type="text" id="message" name="message" />
 					</div>
 				</div>
 				<input type="submit" name="submit" id="submit" class="ink-button blue fr large" value="Submit">
@@ -59,21 +59,37 @@
 				var ws = new WebSocket("ws://" + window.location.hostname + ":" + 8888 + "/ws");
 				$("#chat").html('<div class="fw-500" style="color: grey">Connecting...</div>');
 				ws.onmessage = function(e) {
-					$("#chat").append(e.data)
+					append_message(e.data);
 				};
 				ws.onclose = function(e) {
-					$("#chat").append('<div class="fw-500" style="color: red">Connection Lost.</div>');
+					append_message('<div class="fw-500" style="color: red">Connection Lost.</div>');
 				};
 				ws.onopen = function(e) {
-					$("#chat").html('<div class="fw-500" style="color: green">Connection Established! Welcome to Mikechat!</div>');
+					append_message('<div class="fw-500" style="color: green">Connection Established! Welcome to Mikechat!</div>');
 				};
 
 
 				$("#form").submit(function(e) {
 					ws.send($("#form").serialize());
+					$("#message").val("").focus();
 					return false;
 				});
 			});
+
+			function append_message(message) {
+
+				// this scroll function checks if the user is already scrolled to the bottom, thus they keep seeing new messages
+				var scroll = false;
+				if($("#chat")[0].scrollHeight - $("#chat").outerHeight() <= $("#chat")[0].scrollTop) {
+					scroll = true;
+				}
+
+				$("#chat").append(message);
+
+				if(scroll) {
+					$("#chat").scrollTop($("#chat")[0].scrollHeight);
+				}
+			}
 		</script>
 	</body>
 </html>
