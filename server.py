@@ -73,6 +73,7 @@ application_sockets = tornado.web.Application([
 ], debug=DEBUG)
 
 application_web = tornado.web.Application([
+	(r"/images/(.*)", tornado.web.StaticFileHandler, {"path": os.path.join(PATH, "images")}),
 	(r"/css/(.*)", tornado.web.StaticFileHandler, {"path": os.path.join(PATH, "css")}),
 	(r"/js/(.*)", tornado.web.StaticFileHandler, {"path": os.path.join(PATH, "js")}),
 	(r"/", WebHandler)

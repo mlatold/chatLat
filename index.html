@@ -58,8 +58,19 @@
 		<script>
 			var ws;
 			var was_connected = false;
+			var window_focused = true;
+
+			window.addEventListener('focus', function() {
+				window_focused = true;
+			});
+
+			window.addEventListener('blur', function() {
+				window_focused = false;
+			});
 
 			$(document).ready(function () {
+				Notification.requestPermission(function(perm) { });
+
 				// establish new connection
 				$("#name").val($.cookie('name'));
 				if($.cookie('colour')) {
@@ -90,6 +101,13 @@
 				ws = new WebSocket("ws://" + window.location.hostname + ":" + 8888 + "/ws");
 				// received message from server
 				ws.onmessage = function(e) {
+					msg = e.data.replace(/<(?:.|\n)*?>/gm, "")
+
+					if(!window_focused && was_connected) {
+						notify("New ChatLat Message", msg);
+					}
+
+					was_connected = true;
 					append_message(e.data);
 				};
 				// connection lost
@@ -108,10 +126,29 @@
 				};
 				// successful connection
 				ws.onopen = function(e) {
-					was_connected = true;
 					$("#submit").prop("disabled", false);
 					append_message('<div class="fw-500" style="color: green">Connection Established! Welcome to ChatLat!</div>');
 				};
+			}
+
+			function notify(title, message) {
+				if (!("Notification" in window)) {
+					return;
+				}
+				else if (Notification.permission === "granted") {
+					var notification = new Notification(title, { icon: 'http://' + window.location.hostname + '/images/speech.jpg', body: message });
+				}
+				else if (Notification.permission !== 'denied') {
+					Notification.requestPermission(function (permission) {
+						if(!('permission' in Notification)) {
+							Notification.permission = permission;
+						}
+
+						if (permission === "granted") {
+							var notification = new Notification(title, { icon: 'http://' + window.location.hostname + '/images/speech.jpg', body: message });
+						}
+					});
+				}
 			}
 
 			function append_message(message) {
